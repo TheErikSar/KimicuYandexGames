@@ -9,10 +9,11 @@ namespace Kimicu.YandexGames
     {
         public static bool AdvertisementIsAvailable { get; private set; } = true;
         public static bool Initialized { get; private set; } = false;
-
         private static readonly Coroutine ReloadCoroutine = new Coroutine();
 
         private const float INTERSTITIAL_AD_COOLDOWN = 70;
+        
+        private static bool s_isInVideoAd;
 
         public static void Initialize()
         {
@@ -64,6 +65,14 @@ namespace Kimicu.YandexGames
         {
             if (!Initialized) throw new Exception($"{nameof(Advertisement)} not initialized!");
 
+            if (s_isInVideoAd)
+            {
+                onErrorCallback?.Invoke("Video Ad has already been called!");
+                return;
+            }
+
+            s_isInVideoAd = true;
+            
             #if !UNITY_EDITOR && UNITY_WEBGL
             Agava.YandexGames.VideoAd.Show(() =>
                 {
@@ -75,15 +84,18 @@ namespace Kimicu.YandexGames
                 {
                     onCloseCallback?.Invoke();
                     WebApplication.InAdvert = false;
+                    s_isInVideoAd = false;
                 }, (error) =>
                 {
                     onErrorCallback?.Invoke(error);
                     WebApplication.InAdvert = false;
+                    s_isInVideoAd = false;
                 });
             #elif UNITY_EDITOR
             onOpenCallback?.Invoke();
             onRewardedCallback?.Invoke();
             onCloseCallback?.Invoke();
+            s_isInVideoAd = false;
             #endif
         }
 
