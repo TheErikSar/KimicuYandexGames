@@ -9,6 +9,7 @@ namespace Agava.YandexGames
     public static class YandexGamesSdk
     {
         private static Action s_onInitializeSuccessCallback;
+        private static Action<DateTime> s_onGetServerTimeSuccessCallback;
 
         /// <summary>
         /// Enable it to log SDK callbacks in the console.
@@ -102,6 +103,25 @@ namespace Agava.YandexGames
 
             YandexGamesSdkGameStop();
         }
+
+        public static void GetServerTime(Action<DateTime> onSuccess)
+        {
+            s_onGetServerTimeSuccessCallback = onSuccess;
+            YandexGamesServerTime(OnPurchaseProductSuccessCallback);
+        }
+        
+        [DllImport("__Internal")]
+        private static extern void YandexGamesServerTime(Action<string> successCallback);
+
+        [MonoPInvokeCallback(typeof(Action<string>))]
+        private static void OnPurchaseProductSuccessCallback(string dateJson)
+        {
+            if (!DateTime.TryParse(dateJson, out DateTime parsedTime))
+                throw new Exception($"Got invalid dateJson: \"{dateJson}\"");
+            
+            s_onGetServerTimeSuccessCallback?.Invoke(parsedTime);
+        }
+        
 
         [DllImport("__Internal")]
         private static extern void YandexGamesSdkGameReady();

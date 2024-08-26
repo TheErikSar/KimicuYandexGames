@@ -69,5 +69,14 @@ namespace Kimicu.YandexGames
             Debug.Log($"{nameof(GameStop)} invoke!");
             #endif
         }
+
+        public static void GetServerTime(Action<DateTime> onSuccessCallback)
+        {
+	        #if !UNITY_EDITOR && UNITY_WEBGL
+	        Agava.YandexGames.YandexGamesSdk.GetServerTime(onSuccessCallback);
+	        #else
+	        onSuccessCallback?.Invoke(DateTime.Now);
+	        #endif
+        }
     }
 }

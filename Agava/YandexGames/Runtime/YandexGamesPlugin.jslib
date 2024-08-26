@@ -507,12 +507,19 @@ const library = {
             });
         },
 
+        getServerTime: function (resultCallbackPtr) {
+            const ticks = yandexGames.sdk.serverTime();
+            const json = new Date(ticks).toJSON();
+
+            dynCall('vi', resultCallbackPtr, [yandexGames.allocateUnmanagedString(json)])
+        },
+
         allocateUnmanagedString: function (string) {
             const stringBufferSize = lengthBytesUTF8(string) + 1;
             const stringBufferPtr = _malloc(stringBufferSize);
             stringToUTF8(string, stringBufferPtr, stringBufferSize);
             return stringBufferPtr;
-        },
+        }
     },
 
 
@@ -731,6 +738,10 @@ const library = {
 
     YandexGamesSdkIsRunningOnYandex: function () {
         return window.location.hostname.includes('yandex');
+    },
+    
+    YandexGamesServerTime: function (resultCallbackPtr) {
+        yandexGames.getServerTime(resultCallbackPtr);
     }
 }
 
