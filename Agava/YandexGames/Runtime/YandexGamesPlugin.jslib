@@ -55,6 +55,8 @@ const library = {
 		initializeSdk: function (successCallbackPtr) {
 			window['YaGames'].init().then((sdk) => {
 				this.sdk = sdk;
+                
+				console.log(sdk);
 				console.log('SDK initialized.');
 
 				// The { scopes: false } ensures personal data permission request window won't pop up,
@@ -150,7 +152,11 @@ const library = {
         },
 
         getYandexGamesSdkEnvironment: function () {
+            console.log(yandexGames.sdk.environment);
+            
             const environmentJson = JSON.stringify(yandexGames.sdk.environment);
+            console.log(environmentJson);
+            
             const environmentJsonUnmanagedStringPtr = yandexGames.allocateUnmanagedString(environmentJson);
             return environmentJsonUnmanagedStringPtr;
         },
