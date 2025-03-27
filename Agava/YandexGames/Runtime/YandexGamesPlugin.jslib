@@ -161,6 +161,14 @@ const library = {
             return environmentJsonUnmanagedStringPtr;
         },
 
+        getYandexGamesSdki18nLang: function ()
+        {
+            var lang = yandexGames.sdk.environment.i18n.lang;
+            
+            const langStringPtr = yandexGames.allocateUnmanagedString(lang);
+            return langStringPtr;
+        },
+
         getDeviceType: function () {
             const deviceType = yandexGames.sdk.deviceInfo.type;
 
@@ -544,6 +552,12 @@ const library = {
         yandexGames.throwIfSdkNotInitialized();
 
         return yandexGames.getYandexGamesSdkEnvironment();
+    },
+
+    GetYandexGamesSdki18nLang: function () {
+        yandexGames.throwIfSdkNotInitialized();
+
+        return yandexGames.getYandexGamesSdki18nLang();
     },
 
     GetDeviceType: function () {
