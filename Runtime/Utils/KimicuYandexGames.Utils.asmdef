@@ -4,7 +4,10 @@
     "references": [
         "Unity.VectorGraphics"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor",
+        "WebGL"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
