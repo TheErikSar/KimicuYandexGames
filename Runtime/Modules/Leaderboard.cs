@@ -142,7 +142,6 @@ namespace Kimicu.YandexGames
                     () =>
                     {
                         onSuccessCallback?.Invoke();
-                        Coroutines.StartRoutine(UpdateLeaderboard());
                     }, onErrorCallback, extraData);
             }
             else
