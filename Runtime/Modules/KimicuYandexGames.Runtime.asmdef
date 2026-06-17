@@ -8,7 +8,10 @@
         "GUID:b6eb230989f23034f92263c73c10ad15",
         "GUID:4ba8408c0a2291742a0827e9780f4308"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor",
+        "WebGL"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
