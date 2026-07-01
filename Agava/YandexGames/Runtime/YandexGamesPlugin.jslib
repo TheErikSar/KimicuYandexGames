@@ -307,7 +307,9 @@ const yandexGamesLibrary = {
             })
                 .then(function (flags) {
                     var flagsStringJsonPtr = yandexGames.allocateUnmanagedString(JSON.stringify(flags));
-                    dynCall('vi', successCallbackFlagsPtr, [flagsStringJsonPtr]);
+                    
+					dynCall('vi', successCallbackFlagsPtr, [flagsStringJsonPtr]);
+					_free(flagsStringJsonPtr);
                 }).catch(function (error) {
                 yandexGames.invokeErrorCallback(error, errorCallbackFlagsPtr);
             });
@@ -536,20 +538,32 @@ const yandexGamesLibrary = {
         },
 
         reviewPopupCanOpen: function (resultCallbackPtr) {
-            yandexGames.sdk.feedback.canReview().then(function (result, reason) {
-                if (!reason) {
-                    reason = 'No reason';
-                }
-                const reasonUnmanagedStringPtr = yandexGames.allocateUnmanagedString(reason);
-                dynCall('vii', resultCallbackPtr, [result, reasonUnmanagedStringPtr]);
-                _free(reasonUnmanagedStringPtr);
-            });
+            yandexGames.sdk.feedback.canReview().then(function (response) {
+				const result = response && response.value === true ? 1 : 0;
+				const reason = response && response.reason ? response.reason : 'No reason';
+
+				const reasonUnmanagedStringPtr = yandexGames.allocateUnmanagedString(reason);
+				dynCall('vii', resultCallbackPtr, [result, reasonUnmanagedStringPtr]);
+				_free(reasonUnmanagedStringPtr);
+			}).catch(function (error) {
+				const reason = error && error.message ? error.message : 'Review canReview failed';
+
+				const reasonUnmanagedStringPtr = yandexGames.allocateUnmanagedString(reason);
+				dynCall('vii', resultCallbackPtr, [0, reasonUnmanagedStringPtr]);
+				_free(reasonUnmanagedStringPtr);
+			});
         },
 
         reviewPopupOpen: function (resultCallbackPtr) {
-            yandexGames.sdk.feedback.requestReview().then(function (result) {
-                dynCall('vi', resultCallbackPtr, [result]);
-            });
+            yandexGames.sdk.feedback.requestReview().then(function (response) {
+				const result = response && response.feedbackSent === true ? 1 : 0;
+
+				dynCall('vi', resultCallbackPtr, [result]);
+			}).catch(function (error) {
+				console.error('Review request failed:', error);
+
+				dynCall('vi', resultCallbackPtr, [0]);
+			});
         },
 
         requestFullscreen: function (successCallbackPtr, errorCallbackPtr) {
