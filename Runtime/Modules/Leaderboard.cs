@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Agava.YandexGames;
 using Kimicu.YandexGames.Extension;
 using Kimicu.YandexGames.Utils;
@@ -104,17 +105,40 @@ namespace Kimicu.YandexGames
             {
                 TopLeaderboardEntries = response.entries;
                 onSuccess.Invoke();
-            }, OnError, TopEntriesAmount, 0);
+            }, OnError, TopEntriesAmount, 0, false);
         }
 
         private static void GetCompetingEntries(Action onSuccess)
         {
             Agava.YandexGames.Leaderboard.GetEntries(LeaderboardId, response =>
             {
-                CompetingLeaderboardEntries = response.entries;
+                CompetingLeaderboardEntries = FilterCompetingEntries(response);
                 LeaderboardInfo = response.leaderboard;
                 onSuccess.Invoke();
             }, OnError, 0, CompetingEntriesAmount);
+        }
+
+        private static LeaderboardEntryResponse[] FilterCompetingEntries(LeaderboardGetEntriesResponse response)
+        {
+            if (response?.entries == null || response.ranges == null)
+                return response?.entries;
+
+            var topRange = response.ranges.FirstOrDefault(range => range.start == 0);
+            if (topRange == null)
+                return response.entries;
+
+            var userRankIndex = response.userRank - 1;
+            bool userInTopRange = response.userRank > 0
+                && userRankIndex >= topRange.start
+                && userRankIndex < topRange.start + topRange.size;
+
+            if (userInTopRange)
+                return response.entries;
+
+            var topMaxRank = topRange.start + topRange.size;
+            return response.entries
+                .Where(entry => entry == null || entry.rank > topMaxRank)
+                .ToArray();
         }
 
         private static void GetPlayerEntry(Action onSuccess)
